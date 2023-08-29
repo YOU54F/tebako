@@ -38,14 +38,16 @@ DATABASE_CREDENTIALS = if ENV.fetch('PACT_BROKER_DB_PROVIDER', 'none') == 'postg
 # and connection validation.
 
 app = PactBroker::App.new do |config|
-  config.base_url = 'http://localhost:9292'
+  config.base_urls = 'http://localhost:9292 http://127.0.0.1:9292 http://0.0.0.0:9292'
+  # config.base_url = 'http://0.0.0.0:9292'
   # change these from their default values if desired
   # config.log_dir = "./log"
   # config.log_level = "debug"
+  # config.allow_public_read = true
   config.log_stream = 'stdout'
   config.auto_migrate_db = true
   config.auto_migrate_db_data = true
-  # config.use_hal_browser = true
+  config.use_hal_browser = true
   config.database_connection = Sequel.connect(DATABASE_CREDENTIALS.merge(logger: config.logger))
   # config.database_connection = "postgres://pact_broker:pact_broker@localhost:5432/pact_broker"
   # config.database_connection = Sequel.connect(DATABASE_CREDENTIALS.merge(logger: config.logger))

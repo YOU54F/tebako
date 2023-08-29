@@ -61,3 +61,7 @@ packed-mn
 .package-ready
 extract/
 source_filesystem/
+
+# Pact examples
+/test_bins
+/tmp

@@ -25,6 +25,7 @@
 
 test_task_template: &TEST_TASK_TEMPLATE
   testset-1_script: |
+    chmod +x tests/scripts/functional-tests.sh
     RUBY_VER=3.1.4 tests/scripts/functional-tests.sh
 
   testset-2_script: |
@@ -108,17 +109,17 @@ task:
 
   << : *TEST_TASK_TEMPLATE
 
-task:
+macos_task:
   name: macos-arm64
-  only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_PR != '' || $CIRRUS_TAG != ''
+  # only_if: $CIRRUS_BRANCH == 'main' || $CIRRUS_PR != '' || $CIRRUS_TAG != ''
   env:
     CIRRUS_CLONE_SUBMODULES: true
     CIRRUS_CLONE_DEPTH: 1
     VERBOSE: yes
   macos_instance:
-    image: ghcr.io/cirruslabs/macos-monterey-base:latest
+    # image: ghcr.io/cirruslabs/macos-monterey-base:latest
 # Commented to save Cirrus-ci limited capacity
-# image: ghcr.io/cirruslabs/macos-ventura-base:latest
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
 
   install_script: |
     brew install gnu-sed bash pkg-config bison flex binutils   \
@@ -151,3 +152,42 @@ task:
     - tebako
 
   << : *TEST_TASK_TEMPLATE
+
+
+macos_pact_task:
+  name: macos-pact
+  env:
+    CIRRUS_CLONE_SUBMODULES: true
+    CIRRUS_CLONE_DEPTH: 1
+    VERBOSE: yes
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
+  install_script: |
+    brew install gnu-sed bash pkg-config bison flex binutils   \
+    libffi double-conversion boost jemalloc fmt glog libevent  \
+    libsodium lz4 xz gdbm zlib ncurses libyaml openssl@1.1 libpq postgresql@14
+  pre-setup_script: |
+    cat common.env >> $CIRRUS_ENV
+    echo RUBY_VER=3.2.2 >> $CIRRUS_ENV
+    echo PATH="$(brew --prefix bison)/bin:$PATH" >> $CIRRUS_ENV
+    git clone --depth 1 https://github.com/kward/shunit2.git tests/shunit2
+    bundle install
+    ./exe/tebako setup -p=output/3.2.2 -R=3.2.2
+    ./exe/tebako press -p=output/3.2.2 -R 3.2.2 --root=examples/pact --entry-point=app --output=pact-cli-3.2.2
+  binary_artifacts:
+    path: pact-cli-*
+
+macos_image_task:
+  name: macos-image
+  macos_instance:
+    image: tebako
+  env:
+    matrix:
+      - VERSION: 2.7.7
+      - VERSION: 3.0.6
+      - VERSION: 3.1.4
+      - VERSION: 3.2.2
+  setup_script: |
+    ~/tebako/exe/tebako press -p ~/tebako/output/$VERSION -R $VERSION --root=examples/pact --entry-point=app --output=pact-cli-$VERSION
+  binary_artifacts:
+    path: pact-cli-*

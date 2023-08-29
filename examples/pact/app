@@ -30,79 +30,33 @@ when 'pact'
 when 'pactflow'
   ARGV.shift
   require 'pactflow/client/cli/pactflow'
-
-  # class Thor
-  #   module Base
-  #     module ClassMethods
-  #       def basename
-  #         "#{File.basename($PROGRAM_NAME).split.first.chomp('.rb')} #{INTERNAL_APP}"
-  #       end
-  #     end
-  #   end
-  # end
-
   Pactflow::Client::CLI::Pactflow.start
 when 'stub-service'
   ARGV.shift
   require 'pact/stub_service/cli'
-
-  # class Thor
-  #   module Base
-  #     module ClassMethods
-  #       def basename
-  #         "#{File.basename($PROGRAM_NAME).split.first.chomp('.rb')} #{INTERNAL_APP}"
-  #       end
-  #     end
-  #   end
-  # end
-
   Pact::StubService::CLI.start
 when 'provider-verifier'
   ARGV.shift
   ENV['PACT_EXECUTING_LANGUAGE'] ||= 'unknown'
   require 'pact/provider_verifier/cli/verify'
-
-  # class Thor
-  #   module Base
-  #     module ClassMethods
-  #       def basename
-  #         "#{File.basename($PROGRAM_NAME).split.first.chomp('.rb')} #{INTERNAL_APP}"
-  #       end
-  #     end
-  #   end
-  # end
-
   Pact::ProviderVerifier::CLI::Verify.start
 when 'mock-service'
   ARGV.shift
   require 'pact/mock_service/cli'
-
-  # class Thor
-  #   module Base
-  #     module ClassMethods
-  #       def basename
-  #         "#{File.basename($PROGRAM_NAME).split.first.chomp('.rb')} #{INTERNAL_APP}"
-  #       end
-  #     end
-  #   end
-  # end
-
   Pact::MockService::CLI.start unless defined?(Ocran)
 when 'message'
   ARGV.shift
   require 'pact/message/cli'
-
-  # class Thor
-  #   module Base
-  #     module ClassMethods
-  #       def basename
-  #         "#{File.basename($PROGRAM_NAME).split.first.chomp('.rb')} #{INTERNAL_APP}"
-  #       end
-  #     end
-  #   end
-  # end
-
   Pact::Message::CLI.start
+when 'test'
+  ARGV.shift
+  # ENV['BUNDLE_GEMFILE'] ||= File.expand_path('./Gemfile', __dir__)
+  # require 'bundler/setup'
+  # require 'rspec/core/rake_task'
+  # require 'rubygems/package'
+  # RSpec::Core::RakeTask.new(:spec)
+  # task default: :spec
+  load Gem.bin_path('rake', 'rake')
 when 'broker'
   ARGV.shift
   if ARGV[0] == 'run'
@@ -115,17 +69,6 @@ when 'broker'
     # end
   else
     require 'pact_broker/client/cli/broker'
-
-    # class Thor
-    #   module Base
-    #     module ClassMethods
-    #       def basename
-    #         "#{File.basename($PROGRAM_NAME).split.first.chomp('.rb')} #{INTERNAL_APP}"
-    #       end
-    #     end
-    #   end
-    # end
-
     if ENV['PACT_BROKER_DISABLE_SSL_VERIFICATION'] == 'true' || ENV['PACT_DISABLE_SSL_VERIFICATION'] == 'true'
       require 'openssl'
       OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
