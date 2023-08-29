@@ -1,23 +1,24 @@
 # frozen_string_literal: true
 
-source 'http://rubygems.org'
+source "http://rubygems.org"
 
 # pact-ruby-standalone
-gem 'pact'
-gem 'pact_broker-client'
-gem 'pact-mock_service'
-gem 'pact-provider-verifier'
+gem "pact"
+gem "pact_broker-client"
+gem "pact-mock_service"
+gem "pact-provider-verifier"
 
 # pact_broker
-gem 'pact_broker'
-gem 'sucker_punch', git: 'https://github.com/pact-foundation/sucker_punch.git', ref: 'fix/rename-is-singleton-class-method-2'
-gem 'nokogiri'
-gem 'pg'
-gem 'puma'
-gem 'sqlite3'
+gem "nokogiri"
+gem "pact_broker"
+gem "pg"
+gem "puma"
+gem "sqlite3"
+gem "sucker_punch", git: "https://github.com/pact-foundation/sucker_punch.git",
+                    ref: "fix/rename-is-singleton-class-method-2"
 
 # pact-ffi
-gem 'pact-ffi'
-gem 'httparty'
-gem 'rake'
-gem 'rspec'
+gem "httparty"
+gem "pact-ffi"
+gem "rake"
+gem "rspec"

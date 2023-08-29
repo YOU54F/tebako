@@ -1,25 +1,27 @@
-require 'net/http'
-require 'uri'
+# frozen_string_literal: true
+
+require "net/http"
+require "uri"
 require "webrick"
 require "pact/ffi/verifier"
 require "pact/ffi/logger"
 require "json"
 PactFfi::Logger.log_to_buffer(PactFfi::Logger::LogLevel["INFO"])
 RSpec.describe "pactffi verifier spec" do
-  before(:all) do
-    @server_thread = Thread.new do
-      server = WEBrick::HTTPServer.new(Port: 8000,BindAddress: "127.0.0.1")
-      trap 'INT' do server.shutdown end
-      server.mount_proc("/api/books") do |req, res|
-        if req.request_method == "POST"
-          res.body = JSON.dump({"foo": "Received POST request with body: This is the request body."})
-        else
-          res.body = "This is the foo page."
-        end
-      end
-      server.start
-    end
-  end
+  # before(:all) do
+  #   @server_thread = Thread.new do
+  #     server = WEBrick::HTTPServer.new(Port: 8000, BindAddress: "127.0.0.1")
+  #     trap "INT" do server.shutdown end
+  #     server.mount_proc("/api/books") do |req, res|
+  #       res.body = if req.request_method == "POST"
+  #                    JSON.dump({ foo: "Received POST request with body: This is the request body." })
+  #                  else
+  #                    "This is the foo page."
+  #                  end
+  #     end
+  #     server.start
+  #   end
+  # end
   after(:all) do
     @server_thread.kill
   end
@@ -46,8 +48,6 @@ RSpec.describe "pactffi verifier spec" do
     # expect(result).to be PactFfi::Verifier::Response["VERIFICATION_SUCCESSFUL"]
   end
 end
-
-
 
 # # frozen_string_literal: true
 
@@ -97,14 +97,14 @@ end
 #       #   ['200', {'Content-Type' => 'text/html'}, ["Hello world! The time is #{Time.now}"]]
 #       # end
 #       # app.run
-      
+
 #       # server = WEBrick::HTTPServer.new(Port: 8000)
 #       # trap 'INT' do server.shutdown end
 #       # server.mount_proc("/api/books") do |req, res|
 #       #   res.body = "This is the foo page."
 #       # end
 #       # server.start
-      
+
 #       # server.listen
 
 #       # app.listen(8000)
