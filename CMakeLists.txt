@@ -226,7 +226,7 @@ if (DEFINED ENV{BUNDLER_VER})
  set(BUNDLER_VER $ENV{BUNDLER_VER})
  set(BUNDLER_ANNOTATION "environment")
 else()
-  set(BUNDLER_VER "2.3.22")
+  set(BUNDLER_VER "2.4.22")
   set(BUNDLER_ANNOTATION "default")
 endif()
 

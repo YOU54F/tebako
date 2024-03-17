@@ -20,7 +20,7 @@ RUN wget -q https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemallo
         rm -rf jemalloc-5.2.1.tar.bz2 && \
         cd jemalloc-5.2.1 && \
         ./configure && \
-        make -j$(nproc) && \
+        make -j4 && \
         make install
 RUN gem install bundler tebako
 
@@ -29,30 +29,25 @@ ARG RUBY_VERSION=3.2.2
 ENV RUBY_VERSION=${RUBY_VERSION}
 WORKDIR /app
 RUN tebako setup -p=output/${RUBY_VERSION} -R=${RUBY_VERSION}
-
-# RUN tebako setup -p=output/${RUBY_VERSION} -R=${RUBY_VERSION} && \
-#         tar -czvf output-${RUBY_VERSION}.tar.gz output/${RUBY_VERSION} && \
-#         rm -rf output
-RUN tar -czf output-${RUBY_VERSION}.tar.gz output/${RUBY_VERSION} && \
-        rm -rf output
-
-## Building our app
-FROM tebako_build_env as tebako_press
-ARG RUBY_VERSION=3.2.2
-ENV RUBY_VERSION=${RUBY_VERSION}
-WORKDIR /app
-COPY --from=tebako_build_press /app/output/${RUBY_VERSION} /app/output/${RUBY_VERSION}
-# COPY --from=tebako_build_press /app/output-${RUBY_VERSION}.tar.gz /app/output-${RUBY_VERSION}.tar.gz
-RUN tar -xf output-${RUBY_VERSION}.tar.gz
-ENTRYPOINT [ "/bin/bash", "-c" ]
-CMD [ "tebako" ]
-COPY examples/pact /app/examples/pact
-RUN tebako press -p=output/${RUBY_VERSION} -R ${RUBY_VERSION} --root=examples/pact --entry-point=app --output=pact-cli-${RUBY_VERSION}
-
-## Testing out the app
-FROM alpine:${ALPINE_VERSION} as app
-ARG RUBY_VERSION=3.2.2
-ENV RUBY_VERSION=${RUBY_VERSION}
-COPY --from=tebako_press /app/pact-cli-${RUBY_VERSION} /usr/bin/pact-cli
 ENTRYPOINT [ "/bin/sh", "-c" ]
-CMD [ "pact-cli" ]
+CMD [ "tebako" ]
+
+# ## Building our app
+# FROM tebako_build_env as tebako_press
+# ARG RUBY_VERSION=3.2.2
+# ENV RUBY_VERSION=${RUBY_VERSION}
+# WORKDIR /app
+# COPY --from=tebako_build_press /app/output/${RUBY_VERSION} /app/output/${RUBY_VERSION}
+# ENTRYPOINT [ "/bin/sh", "-c" ]
+# CMD [ "tebako" ]
+
+# COPY examples/pact /app/examples/pact
+# RUN tebako press -p=output/${RUBY_VERSION} -R ${RUBY_VERSION} --root=examples/pact --entry-point=app --output=pact-cli-${RUBY_VERSION}
+
+# ## Testing out the app
+# FROM alpine:${ALPINE_VERSION} as app
+# ARG RUBY_VERSION=3.2.2
+# ENV RUBY_VERSION=${RUBY_VERSION}
+# COPY --from=tebako_press /app/pact-cli-${RUBY_VERSION} /usr/bin/pact-cli
+# ENTRYPOINT [ "/bin/sh", "-c" ]
+# CMD [ "pact-cli" ]

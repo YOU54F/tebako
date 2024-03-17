@@ -1,0 +1,4 @@
+ARG RUBY_VERSION=3.2.2
+FROM you54f/tebako:3.2.2-openssl3_0
+COPY examples/pact-cli /app/examples/pact-cli
+RUN tebako press -p=output/${RUBY_VERSION} -R ${RUBY_VERSION} --root=examples/pact-cli --entry-point=app --output=pact-cli-${RUBY_VERSION}-arm64-musl

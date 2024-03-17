@@ -1,0 +1,135 @@
+
+# ARG ALPINE_VERSION=3.14
+# FROM alpine:${ALPINE_VERSION} as stage1 
+# ARG ALPINE_VERSION=3.14
+# ENV ALPINE_VERSION=$ALPINE_VERSION
+# ARG RUBY_VERSION=3.2.2
+# ENV RUBY_VERSION=${RUBY_VERSION}
+# Building with alpine 3.14 works between 3.11 and 3.18
+# open ssl 1.1 from 3.16 and below
+# open ssl 3.0 support only added in linux 3.17 onwards https://debugpointnews.com/alpine-linux-3-17/
+# open ssl 3.1 from 3.18
+
+# Setup build environment for rubyc
+# RUN apk --no-cache add build-base cmake git bash   \
+#         autoconf boost-static boost-dev flex-dev bison make      \
+#         binutils-dev libevent-dev acl-dev sed python3 pkgconfig  \
+#         lz4-dev openssl-dev zlib-dev xz ninja zip unzip curl     \
+#         libunwind-dev libdwarf-dev gflags-dev elfutils-dev       \
+#         libevent-static openssl-libs-static lz4-static xz-dev    \
+#         zlib-static libunwind-static acl-static tar libffi-dev   \
+#         gdbm-dev yaml-dev yaml-static ncurses-dev ncurses-static \
+#         readline-dev readline-static p7zip ruby-dev gcompat      \
+#         gettext-dev gperf postgresql-libs postgresql-dev ruby-etc
+# # bash is needed to detect the OS (CMakeLists.txt#L135)
+# # ruby-etc needed for alpine 3.14 and maybe below
+
+# RUN wget -q https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2 && \
+#         tar -xf jemalloc-5.2.1.tar.bz2 && \
+#         cd jemalloc-5.2.1 && \
+#         ./configure && \
+#         make -j$(nproc) && \
+#         make install
+# ENV CXX=g++
+# ENV CC=gcc
+# RUN gem install bundler
+# RUN gem install tebako
+# RUN cmake --version
+# WORKDIR /app
+# RUN tebako setup -p=output/2.7.7 -R=2.7.7
+# RUN tebako setup -p=output/3.0.6 -R=3.0.6
+# RUN tebako setup -p=output/3.1.4 -R=3.1.4
+# RUN tebako setup -p=output/3.2.2 -R=3.2.2
+# RUN du -hs output/*
+# RUN tar -czf output-2.7.7.tar.gz output/2.7.7
+# RUN tar -czf output-3.0.6.tar.gz output/3.0.6
+# RUN tar -czf output-3.1.4.tar.gz output/3.1.4
+# RUN tar -czf output-3.2.2.tar.gz output/3.2.2
+# RUN tebako setup -p=output/2.7.7 -R=2.7.7 && \
+#     tar -czvf output-2.7.7.tar.gz output/2.7.7
+
+# RUN tebako setup -p=output/3.0.6 -R=3.0.6 && \
+#     tar -czvf output-3.0.6.tar.gz output/3.0.6
+
+# RUN tebako setup -p=output/3.1.4 -R=3.1.4 && \
+#     tar -czvf output-3.1.4.tar.gz output/3.1.4
+
+# RUN tebako setup -p=output/3.2.2 -R=3.2.2 && \
+#     tar -czvf output-3.2.2.tar.gz output/3.2.2
+# COPY --from=stage1 /app/*.tar.gz /app
+# ENTRYPOINT [ "/bin/bash", "-c" ]
+# CMD [ "tebako" ]
+
+# FROM alpine:${ALPINE_VERSION} as stage2_3_2_2
+# WORKDIR /app
+# COPY --from=stage1 /app/output/3.2.2 /app/output/3.2.2
+# COPY examples/pact /app/examples/pact
+# RUN apk --no-cache add build-base cmake git bash   \
+#         autoconf boost-static boost-dev flex-dev bison make      \
+#         binutils-dev libevent-dev acl-dev sed python3 pkgconfig  \
+#         lz4-dev openssl-dev zlib-dev xz ninja zip unzip curl     \
+#         libunwind-dev libdwarf-dev gflags-dev elfutils-dev       \
+#         libevent-static openssl-libs-static lz4-static xz-dev    \
+#         zlib-static libunwind-static acl-static tar libffi-dev   \
+#         gdbm-dev yaml-dev yaml-static ncurses-dev ncurses-static \
+#         readline-dev readline-static p7zip ruby-dev gcompat      \
+#         gettext-dev gperf postgresql-libs postgresql-dev ruby-etc
+# RUN wget -q https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2 && \
+#         tar -xf jemalloc-5.2.1.tar.bz2 && \
+#         cd jemalloc-5.2.1 && \
+#         ./configure && \
+#         make -j$(nproc) && \
+#         make install
+# RUN gem install tebako
+# RUN tebako press -p=output/3.2.2 -R 3.2.2 --root=examples/pact --entry-point=app --output=pact-cli-3.2.2
+
+
+ARG ALPINE_VERSION=3.14
+FROM alpine:${ALPINE_VERSION} as tebako_build_env
+RUN apk --no-cache add build-base cmake git bash   \
+        autoconf boost-static boost-dev flex-dev bison make      \
+        binutils-dev libevent-dev acl-dev sed python3 pkgconfig  \
+        lz4-dev openssl-dev zlib-dev xz ninja zip unzip curl     \
+        libunwind-dev libdwarf-dev gflags-dev elfutils-dev       \
+        libevent-static openssl-libs-static lz4-static xz-dev    \
+        zlib-static libunwind-static acl-static tar libffi-dev   \
+        gdbm-dev yaml-dev yaml-static ncurses-dev ncurses-static \
+        readline-dev readline-static p7zip ruby-dev gcompat      \
+        gettext-dev gperf postgresql-libs postgresql-dev ruby-etc
+RUN wget -q https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2 && \
+        tar -xf jemalloc-5.2.1.tar.bz2 && \
+        rm -rf jemalloc-5.2.1.tar.bz2 && \
+        cd jemalloc-5.2.1 && \
+        ./configure && \
+        make -j$(nproc) && \
+        make install
+RUN gem install bundler tebako
+
+FROM tebako_build_env as tebako_build_press_3_2_2
+ARG RUBY_VERSION=3.2.2
+ENV RUBY_VERSION=${RUBY_VERSION}
+WORKDIR /app
+RUN tebako setup -p=output/${RUBY_VERSION} -R=${RUBY_VERSION}
+# FROM tebako_build_env as tebako_build_press_3_1_4
+# ARG RUBY_VERSION=3.1.4
+# ENV RUBY_VERSION=${RUBY_VERSION}
+# WORKDIR /app
+# RUN tebako setup -p=output/${RUBY_VERSION} -R=${RUBY_VERSION}
+# FROM tebako_build_env as tebako_build_press_3_0_6
+# ARG RUBY_VERSION=3.0.6
+# ENV RUBY_VERSION=${RUBY_VERSION}
+# WORKDIR /app
+# RUN tebako setup -p=output/${RUBY_VERSION} -R=${RUBY_VERSION}
+# FROM tebako_build_env as tebako_build_press_2_7_7
+# ARG RUBY_VERSION=2.7.7
+# ENV RUBY_VERSION=${RUBY_VERSION}
+# WORKDIR /app
+# RUN tebako setup -p=output/${RUBY_VERSION} -R=${RUBY_VERSION}
+
+FROM tebako_build_press_3_2_2 as tebako_press_3_2_2
+ARG RUBY_VERSION=3.2.2
+ARG RUBY_BUILDER=3_2_2
+ENV RUBY_VERSION=${RUBY_VERSION}
+WORKDIR /app
+COPY --from=tebako_build_press_3_2_2 /app/output/${RUBY_VERSION} /app/output/${RUBY_VERSION}
+RUN tebako press -p=output/${RUBY_VERSION} -R ${RUBY_VERSION} --root=examples/pact --entry-point=app --output=pact-cli-${RUBY_VERSION}

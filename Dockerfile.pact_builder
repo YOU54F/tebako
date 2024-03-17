@@ -1,0 +1,6 @@
+FROM you54f/tebako
+ARG RUBY_VERSION=3.2.2
+ENV RUBY_VERSION=${RUBY_VERSION}
+WORKDIR /app
+COPY examples/pact /app/examples/pact
+# RUN tebako press -p=output/${RUBY_VERSION} -R ${RUBY_VERSION} --root=examples/pact --entry-point=app --output=work/pact-cli-${RUBY_VERSION}
